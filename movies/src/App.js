@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 import './App.css';
 import NavBar from "./component/Navbar";
-import WatchListHome from "./component/Home"
+import WatchListHome from "./component/Home";
+import Search from "./component/search";
+import getMovie from "./utils/getData"
 export default class App extends Component {
   state = {
     watchList: [
@@ -25,6 +27,23 @@ export default class App extends Component {
         status: true                         
       }
     ],
+    //for search
+    searchResult:null,
+  };
+  searchvalue = null;
+    handleSearchInput = e => {
+      this.searchvalue = e.target.value;
+    };
+    handleGetMovie = e =>{
+      e.preventDefault();
+      getMovie(this.searchvalue).then(response=>{
+        this.setState({searchResult:response.results});
+        const html = document.querySelector("html");
+        const sectionMovie = document.querySelector(".watchList--main");
+        setTimeout(() => (html.scrollTop = sectionMovie.offsetTop), 200);
+      })
+    }
+    /////////////////////////////
   render() {
     return (
       <BrowserRouter>
@@ -37,13 +56,26 @@ export default class App extends Component {
         <WatchListHome
         watchList={this.state.watchList}
         />
-      )}
-     />
+        )}
+     /> 
+       <Route 
+       exact 
+       path={"/search"}
+       component={()=>(
+         <Search 
+         searchresult ={this.state.searchResult}
+         searchIn={this.handleSearchInput}
+         submitGetMovie={this.handleGetMovie}
+        //  idAdd={this.handleIdToAdd}
+         />
+       )}
+       /> 
+     
      </Switch>
       </BrowserRouter>
      
     );
   }
 }
-}
+
 
